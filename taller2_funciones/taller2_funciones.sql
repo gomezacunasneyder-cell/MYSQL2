@@ -110,3 +110,45 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- EJERCICIO 4: Evaluación de Score Crediticio (Reto Integrador)
+DROP FUNCTION IF EXISTS EvaluarElegibilidadCredito;
+
+DELIMITER //
+
+CREATE FUNCTION EvaluarElegibilidadCredito(
+    p_cuenta_id INT
+)
+RETURNS VARCHAR(30)
+READS SQL DATA
+BEGIN
+    DECLARE v_saldo DECIMAL(12,2);
+    DECLARE v_total_retiros DECIMAL(12,2);
+    DECLARE v_resultado VARCHAR(30);
+
+    SELECT saldo INTO v_saldo
+    FROM Cuentas
+    WHERE cuenta_id = p_cuenta_id;
+
+    IF v_saldo IS NULL THEN
+        RETURN 'Cuenta Inexistente';
+    END IF;
+
+    SELECT IFNULL(SUM(monto), 0.00)
+    INTO v_total_retiros
+    FROM Transacciones
+    WHERE cuenta_id = p_cuenta_id
+      AND tipo_transaccion = 'Retiro';
+
+    IF v_saldo >= 2000000.00 AND v_total_retiros <= (v_saldo * 2) THEN
+        SET v_resultado = 'Aprobado';
+    ELSEIF v_saldo >= 500000.00 AND v_saldo < 2000000.00 THEN
+        SET v_resultado = 'Requiere Aval';
+    ELSE
+        SET v_resultado = 'Rechazado';
+    END IF;
+
+    RETURN v_resultado;
+END //
+
+DELIMITER ;
