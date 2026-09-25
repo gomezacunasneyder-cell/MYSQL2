@@ -55,3 +55,30 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- EJERCICIO 2: Total de Retiros en Rango de Fechas
+DROP FUNCTION IF EXISTS ObtenerTotalRetirosPeriodo;
+
+DELIMITER //
+
+CREATE FUNCTION ObtenerTotalRetirosPeriodo(
+        p_cuenta_id INT,
+        p_fecha_inicio DATE,
+        p_fecha_fin DATE
+)
+RETURNS DECIMAL(12,2)
+READS SQL DATA
+BEGIN
+        DECLARE v_total_retiros DECIMAL(12,2);
+
+        SELECT IFNULL(SUM(monto), 0.00)
+        INTO v_total_retiros
+        FROM Transacciones
+        WHERE cuenta_id = p_cuenta_id
+            AND tipo_transaccion = 'Retiro'
+            AND DATE(fecha) BETWEEN p_fecha_inicio AND p_fecha_fin;
+
+        RETURN v_total_retiros;
+END //
+
+DELIMITER ;
