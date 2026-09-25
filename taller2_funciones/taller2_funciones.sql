@@ -62,23 +62,51 @@ DROP FUNCTION IF EXISTS ObtenerTotalRetirosPeriodo;
 DELIMITER //
 
 CREATE FUNCTION ObtenerTotalRetirosPeriodo(
-        p_cuenta_id INT,
-        p_fecha_inicio DATE,
-        p_fecha_fin DATE
+    p_cuenta_id INT,
+    p_fecha_inicio DATE,
+    p_fecha_fin DATE
 )
 RETURNS DECIMAL(12,2)
 READS SQL DATA
 BEGIN
-        DECLARE v_total_retiros DECIMAL(12,2);
+    DECLARE v_total_retiros DECIMAL(12,2);
 
-        SELECT IFNULL(SUM(monto), 0.00)
-        INTO v_total_retiros
-        FROM Transacciones
-        WHERE cuenta_id = p_cuenta_id
-            AND tipo_transaccion = 'Retiro'
-            AND DATE(fecha) BETWEEN p_fecha_inicio AND p_fecha_fin;
+    SELECT IFNULL(SUM(monto), 0.00)
+    INTO v_total_retiros
+    FROM Transacciones
+    WHERE cuenta_id = p_cuenta_id
+      AND tipo_transaccion = 'Retiro'
+      AND DATE(fecha) BETWEEN p_fecha_inicio AND p_fecha_fin;
 
-        RETURN v_total_retiros;
+    RETURN v_total_retiros;
+END //
+
+DELIMITER ;
+
+-- EJERCICIO 3: Proyección de Rendimientos de CDT con Bucle (WHILE)
+DROP FUNCTION IF EXISTS ProyectarRendimientoCDT;
+
+DELIMITER //
+
+CREATE FUNCTION ProyectarRendimientoCDT(
+    p_capital DECIMAL(12,2),
+    p_tasa_anual DECIMAL(5,2),
+    p_anios INT
+)
+RETURNS DECIMAL(12,2)
+DETERMINISTIC
+BEGIN
+    DECLARE v_capital_acumulado DECIMAL(12,2);
+    DECLARE v_contador INT DEFAULT 1;
+
+    SET v_capital_acumulado = p_capital;
+
+    WHILE v_contador <= p_anios DO
+        SET v_capital_acumulado = v_capital_acumulado * (1 + (p_tasa_anual / 100.0));
+        SET v_contador = v_contador + 1;
+    END WHILE;
+
+    RETURN v_capital_acumulado;
 END //
 
 DELIMITER ;
