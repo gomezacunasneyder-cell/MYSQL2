@@ -26,6 +26,16 @@ INSERT INTO cuentas (id_cuenta, titular, saldo) VALUES
 (1, 'Ana López', 5000.00),
 (2, 'Carlos Pérez', 3000.00);
 
+CREATE TABLE auditoria_operaciones (
+    id_auditoria INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_responsable VARCHAR(100),
+    cuenta_origen INT,
+    cuenta_destino INT,
+    monto DECIMAL(10,2),
+    codigo_resultado INT,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Paso 4: Procedimiento TransferirFondos
 DELIMITER $$
 
@@ -44,6 +54,10 @@ proc_block: BEGIN
     BEGIN
         ROLLBACK;
         SET p_codigo_respuesta = 500;
+
+        INSERT INTO auditoria_operaciones
+            (usuario_responsable, cuenta_origen, cuenta_destino, monto, codigo_resultado)
+        VALUES (p_usuario, p_origen, p_destino, p_monto, 500);
     END;
 
     -- Desafío extra: validar que el monto sea mayor que cero
@@ -51,6 +65,10 @@ proc_block: BEGIN
         SET p_codigo_respuesta = 401;
         SELECT titular INTO p_titular_origen
             FROM cuentas WHERE id_cuenta = p_origen;
+
+        INSERT INTO auditoria_operaciones
+            (usuario_responsable, cuenta_origen, cuenta_destino, monto, codigo_resultado)
+        VALUES (p_usuario, p_origen, p_destino, p_monto, 401);
         LEAVE proc_block;
     END IF;
 
@@ -70,9 +88,17 @@ proc_block: BEGIN
 
         COMMIT;
         SET p_codigo_respuesta = 200;
+
+        INSERT INTO auditoria_operaciones
+            (usuario_responsable, cuenta_origen, cuenta_destino, monto, codigo_resultado)
+        VALUES (p_usuario, p_origen, p_destino, p_monto, 200);
     ELSE
         ROLLBACK;
         SET p_codigo_respuesta = 400;
+
+        INSERT INTO auditoria_operaciones
+            (usuario_responsable, cuenta_origen, cuenta_destino, monto, codigo_resultado)
+        VALUES (p_usuario, p_origen, p_destino, p_monto, 400);
     END IF;
 END$$
 
