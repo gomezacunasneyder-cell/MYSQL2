@@ -30,3 +30,28 @@ INSERT INTO Transacciones (cuenta_id, tipo_transaccion, monto, fecha) VALUES
 (1, 'Retiro', 200000.00, '2026-01-20 15:00:00'),
 (1, 'Deposito', 500000.00, '2026-02-01 09:00:00'),
 (2, 'Retiro', 100000.00, '2026-01-10 12:00:00');
+
+-- EJERCICIO 1: Cálculo del Impuesto 4x1000 (GMF)
+DROP FUNCTION IF EXISTS CalcularImpuestoGMF;
+
+DELIMITER //
+
+CREATE FUNCTION CalcularImpuestoGMF(
+    p_monto DECIMAL(12,2),
+    p_es_exenta BOOLEAN
+)
+RETURNS DECIMAL(12,2)
+DETERMINISTIC
+BEGIN
+    DECLARE v_impuesto DECIMAL(12,2);
+
+    IF p_es_exenta THEN
+        SET v_impuesto = 0.00;
+    ELSE
+        SET v_impuesto = p_monto * 0.004;
+    END IF;
+
+    RETURN v_impuesto;
+END //
+
+DELIMITER ;
