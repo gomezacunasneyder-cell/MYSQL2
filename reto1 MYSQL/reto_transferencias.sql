@@ -33,9 +33,11 @@ CREATE PROCEDURE TransferirFondos(
     IN  p_origen INT,
     IN  p_destino INT,
     IN  p_monto DECIMAL(10,2),
-    OUT p_codigo_respuesta INT
+    IN  p_usuario VARCHAR(100),
+    OUT p_codigo_respuesta INT,
+    OUT p_titular_origen VARCHAR(100)
 )
-BEGIN
+proc_block: BEGIN
     DECLARE v_saldo_origen DECIMAL(10,2);
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -44,9 +46,17 @@ BEGIN
         SET p_codigo_respuesta = 500;
     END;
 
+    -- Desafío extra: validar que el monto sea mayor que cero
+    IF p_monto <= 0 THEN
+        SET p_codigo_respuesta = 401;
+        SELECT titular INTO p_titular_origen
+            FROM cuentas WHERE id_cuenta = p_origen;
+        LEAVE proc_block;
+    END IF;
+
     START TRANSACTION;
 
-    SELECT saldo INTO v_saldo_origen
+    SELECT saldo, titular INTO v_saldo_origen, p_titular_origen
         FROM cuentas
         WHERE id_cuenta = p_origen
         FOR UPDATE;
