@@ -20,3 +20,8 @@ CREATE TABLE historial_transferencias (
     monto DECIMAL(10,2),
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Paso 3: Insertar datos de prueba
+INSERT INTO cuentas (id_cuenta, titular, saldo) VALUES
+(1, 'Ana López', 5000.00),
+(2, 'Carlos Pérez', 3000.00);
