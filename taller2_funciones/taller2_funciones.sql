@@ -152,3 +152,14 @@ BEGIN
 END //
 
 DELIMITER ;
+
+    -- ================= PRUEBAS =================
+    SELECT CalcularImpuestoGMF(1000000.00, FALSE) AS Impuesto_4x1000;
+    SELECT CalcularImpuestoGMF(1000000.00, TRUE)  AS Impuesto_Exento;
+
+    SELECT ObtenerTotalRetirosPeriodo(1, '2026-01-01', '2026-01-31') AS Total_Retiros_Enero;
+
+    SELECT ProyectarRendimientoCDT(10000000.00, 10.50, 3) AS Capital_Proyectado_3Anios;
+
+    SELECT cuenta_id, titular, saldo, EvaluarElegibilidadCredito(cuenta_id) AS Estado_Credito
+    FROM Cuentas;
