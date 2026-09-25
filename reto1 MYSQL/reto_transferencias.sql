@@ -103,3 +103,20 @@ proc_block: BEGIN
 END$$
 
 DELIMITER ;
+
+-- Paso 5: Pruebas
+
+-- Caso Exitoso
+CALL TransferirFondos(1, 2, 1000, 'admin_sistema', @codigo, @titular);
+SELECT @codigo AS codigo_respuesta, @titular AS titular_origen;
+SELECT * FROM cuentas;
+
+-- Caso Fallido: saldo insuficiente
+CALL TransferirFondos(1, 2, 10000, 'admin_sistema', @codigo, @titular);
+SELECT @codigo AS codigo_respuesta, @titular AS titular_origen;
+
+-- Caso Extra: monto inválido
+CALL TransferirFondos(1, 2, -500, 'admin_sistema', @codigo, @titular);
+SELECT @codigo AS codigo_respuesta, @titular AS titular_origen;
+
+SELECT * FROM auditoria_operaciones;
